@@ -56,6 +56,11 @@ StarsBrightness = 0
 GroundYAveraged = math.nan
 RecentlyJumped = 0
 Sim = ac.getSim()
+__AmbientSaturation = 1
+__SunMult = 1.0
+__AmbientMult = 1.0
+local filterScriptPath = ""
+
 
 -- Loading textures asyncronously:
 ui.setAsynchronousImagesLoading(true)
@@ -230,7 +235,7 @@ local function rareUpdate1(dt)
   ApplyAmbient()
   ApplyFog(dt)
   ApplySkyFeatures()
-  ApplyAdaptiveShadows()
+  --ApplyAdaptiveShadows()
 end
 
 -- Called each 3rd frame, but with an offset, to spread the load
@@ -260,6 +265,9 @@ local function getCloudsDeltaT(dt, gameDT)
 end
 
 local forceUpdateShadingNext = false
+local filterHasScript = nil
+local ppfilterOld = nil
+local count = 1
 
 function script.update(dt)
   if not math.isfinite(Sim.cameraPosition.x) then
@@ -363,6 +371,55 @@ function script.update(dt)
     CurrentConditions.windDir:scale(1 - mix):addScaled(CurrentConditions.windDirInstant, mix)
     CurrentConditions.windSpeed = math.lerp(CurrentConditions.windSpeed, CurrentConditions.windSpeedInstant, mix)
   end
+
+  
+
+            local ppfilter = nil
+            if ac.getPpFilter~=nil and ac.getPpFilter()=="" then
+                local _l_AC_VIDEO = ac.INIConfig.videoConfig()
+                ppfilter = _l_AC_VIDEO:get("POST_PROCESS","FILTER", "")
+            else
+                ppfilter = ac.getPpFilter()
+            end
+            ac.debug("PP filter: ",ppfilter)
+            if ppfilter ~= ppfilterOld then
+              filterHasScript = nil
+              filterScriptPath = nil
+              filter_script_update = nil
+              
+            end
+
+            if filterHasScript == nil then
+              
+            
+            if ppfilter~=nil and ppfilter~="" and ac.isPpActive() then
+                -- filter is selected in video ini
+                filterScriptPath = ac.getFolder(ac.FolderID.Root).."\\system\\cfg\\ppfilters\\filter_scripts\\"..ppfilter..".lua"
+                if file_exists(filterScriptPath) == false then
+                  filterScriptPath = ac.getFolder(ac.FolderID.Root).."\\system\\cfg\\ppfilters\\filter_scripts\\dummy.lua"
+                  dofile(filterScriptPath)
+                  filterHasScript = false
+                  ppfilterOld = ppfilter
+                  ac.clearDebug()
+                else
+                  filterHasScript = true
+                  --ac.debug("Loading filter script: ",filterScriptPath)
+                  dofile(filterScriptPath)
+                  ppfilterOld = ppfilter
+                  
+                end
+            end
+
+          end
+          --if filterHasScript == true then
+            filter_script_update(dt)
+            
+            
+          --end
+          ac.debug("filterHasScript",filterHasScript)
+          
+
+
 end
 
 if ScriptSettings.POSTPROCESSING.LIGHTWEIGHT_REPLACEMENT then
@@ -387,3 +444,16 @@ ac.onResolutionChange(function (newSize, makingScreenshot)
   for _, v in ipairs(OnResolutionChange) do v() end
   collectgarbage('collect')
 end)
+
+
+
+-- Returns true if the file exists, false otherwise
+function file_exists(path)
+  local f = io.open(path, "r")
+  if f ~= nil then
+    io.close(f)
+    return true
+  else
+    return false
+  end
+end

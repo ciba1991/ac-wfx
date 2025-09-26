@@ -61,7 +61,8 @@ InitializeConsts(ScriptSettings.LINEAR_COLOR_SPACE.ENABLED)
 
 CloudUseAtlas = true
 CloudSpawnScale = 0.5
-CloudCellSize = 2000
+--CloudCellSize = 2000
+CloudCellSize = 1000
 CloudCellDistance = 6
 CloudDistanceShiftStart = 4000
 CloudDistanceShiftEnd = 10000

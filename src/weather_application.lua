@@ -17,10 +17,10 @@ local belowHorizonCorrection = 0
 local initialSet = 3
 local cameraOcclusion = 1
 local sunColor = rgb(1, 1, 1)
-local skyTopColor = rgb(1, 1, 1)
-local skySunColor = rgb(1, 1, 1)
+skyTopColor = rgb(1, 1, 1)
+skySunColor = rgb(1, 1, 1)
 local lightDir = vec3(0, 1, 0)
-local lightColor = rgb(0, 0, 0)
+lightColor = rgb(0, 0, 0)
 local fogRangeMult = 1
 local realNightK = 0
 
@@ -158,13 +158,16 @@ function ApplySky(dt)
 
   -- Generally the same:
   ac.setSkyV2MieKCoefficient(ac.SkyRegion.All, vec3(0.686, 0.678, 0.666))
-  ac.setSkyV2NumMolecules(ac.SkyRegion.All, 2.542e25)
+  --ac.setSkyV2NumMolecules(ac.SkyRegion.All, 2.542e25)
+  ac.setSkyV2NumMolecules(ac.SkyRegion.All, 2.9542e25)
   ac.setSkyV2MieDirectionalG(ac.SkyRegion.All, 0.8)
   ac.setSkyV2DepolarizationFactor(ac.SkyRegion.All, 0.035)
   ac.setSkyV2MieV(ac.SkyRegion.All, 3.96)
   ac.setSkyV2MieZenithLength(ac.SkyRegion.All, 1.25e3)
-  ac.setSkyV2SunIntensityFactor(ac.SkyRegion.All, 1000.0)
-  ac.setSkyV2SunIntensityFalloffSteepness(ac.SkyRegion.All, 1.5)
+  --ac.setSkyV2SunIntensityFactor(ac.SkyRegion.All, 1000.0)
+  ac.setSkyV2SunIntensityFactor(ac.SkyRegion.All, 500.0)
+  --ac.setSkyV2SunIntensityFalloffSteepness(ac.SkyRegion.All, 1.5)
+  ac.setSkyV2SunIntensityFalloffSteepness(ac.SkyRegion.All, 0.5)
 
   -- Few sky adjustments
   local purpleAdjustment = sunsetK -- slightly alter color for sunsets
@@ -174,11 +177,13 @@ function ApplySky(dt)
   if UseGammaFix then
     local refractiveIndex = math.lerp(1.000317, 1.00029, NightK) + 0.0001 * purpleAdjustment -- TODO: Tie to pollution, make purple value dynamic 
     ac.setSkyV2Primaries(ac.SkyRegion.All, vec3(6.8e-7, 5.5e-7, 4.5e-7))
-    ac.setSkyV2Turbidity(ac.SkyRegion.All, 1.25 + sunsetK * (1 - NightK) * 3.45)
-    ac.setSkyV2Rayleigh(ac.SkyRegion.Sun, 1 + sunsetK * 0.28)
+    --ac.setSkyV2Turbidity(ac.SkyRegion.All, 1.25 + sunsetK * (1 - NightK) * 3.45)
+    ac.setSkyV2Turbidity(ac.SkyRegion.All, 0.25 + sunsetK * (1 - NightK) * 3.45)
+    --ac.setSkyV2Rayleigh(ac.SkyRegion.Sun, 1 + sunsetK * 0.28)
+    ac.setSkyV2Rayleigh(ac.SkyRegion.Sun, 0.5 + sunsetK * 0.28)
     ac.setSkyV2RayleighZenithLength(ac.SkyRegion.All, (8400 - 6000 * sunsetK) * (1 - 0.5 * NightK) + baseCityPollution * math.lerp(8000, 4000, horizonK))
 
-    ac.setSkyV2Luminance(ac.SkyRegion.All, 0.03)
+    ac.setSkyV2Luminance(ac.SkyRegion.All, math.lerp(0.00,0.03,math.lerpInvSat(SunDir.y,-0.05,0)))
     ac.setSkyV2Gamma(ac.SkyRegion.All, 1)
 
     ac.setSkyV2BackgroundLight(ac.SkyRegion.All, 0) -- what does this thing do?
@@ -304,8 +309,8 @@ function ApplySky(dt)
 
   -- Small adjustment for balancing
   if UseGammaFix then
-    skySunColor:scale(0.5)
-    skyTopColor:scale(0.5)
+    skySunColor:scale(1)
+    skyTopColor:scale(1)
   else
     skySunColor:scale(0.25)
     skyTopColor:scale(0.25)
@@ -408,7 +413,7 @@ function ApplyLight()
   -- Adjust light dir for case where sun is below horizon, but a bit is still visible
   belowHorizonCorrection = math.lerpInvSat(lightDir.y, 0.04, 0.01)
   if belowHorizonCorrection > 0 then
-    lightColor:scale(math.lerpInvSat(lightDir.y, -0.01, 0.01))
+    lightColor:scale(math.lerpInvSat(lightDir.y, -0.01, 0.1))
     lightDir.y = math.lerp(lightDir.y, 0.02, belowHorizonCorrection ^ 2)
   end
 
@@ -420,15 +425,17 @@ function ApplyLight()
     lightColor:setScaled(thunderFlash.color, 10)
   end
 
+ 
   -- Applying everything
   ac.setLightDirection(lightDir)
-  ac.setLightColor(lightColor)
-  ac.setSpecularColor(lightColor)
+  ac.setLightColor((lightColor * __SunMult):adjustSaturation(1-1*math.lerpInvSat(SunDir.y,0,0.1)))
+  --ac.debug("lightColor",(lightColor * __SunMult):adjustSaturation(1-0.5*math.lerpInvSat(SunDir.y,0,0.3)))
+  ac.setSpecularColor(lightColor*2)
   ac.setSunSpecularMultiplier(CurrentConditions.clear ^ 2)
 
-  ac.setCloudsLight(lightDir, lightColor, 6371e3)
+  ac.setCloudsLight(lightDir, lightColor*0.5, 6371e3)
   CloudsLightDirection:set(lightDir)
-  CloudsLightColor:set(lightColor)
+  CloudsLightColor:set(lightColor*0.5)
 end
 
 -- Updates ambient lighting based on sky color without taking sun or moon into account
@@ -463,15 +470,17 @@ function ApplyAmbient()
     ambientBaseColor:setLerp(ambientBaseColor, sunColorSynced, (basicSunColorContribution + ambientDesaturate * 0.4) * (CurrentConditions.clear ^ 2))
     
     -- Ambient light is ready
-    ac.setAmbientColor(ambientBaseColor)
+    ac.setAmbientColor(ambientBaseColor:adjustSaturation(__AmbientSaturation):scale(__AmbientMult))
     ambientLuminance = ambientBaseColor:luminance()
+    --ac.debug('ambientBaseColor', (ambientBaseColor*__AmbientMult):adjustSaturation(__AmbientSaturation,ambientBaseColor))
 
     -- Distant ambient lighting is a tiny bit more bluish because why not
     ac.setDistantAmbientColor(ambientDistantColor:set(0.95, 1, 1.05):mul(ambientBaseColor), 20e3)
     ambientExtraColor:set(skyTopColor):adjustSaturation(ambientSaturate):mul(CurrentConditions.tint)
     ambientExtraColor:setLerp(ambientExtraColor, sunColorSynced, (0.1 + ambientDesaturate * 0.4) * (CurrentConditions.clear ^ 2)):sub(ambientBaseColor)
     ambientExtraColor:add(LightPollutionColor)
-    ac.setExtraAmbientColor(ambientExtraColor)
+    
+    ac.setExtraAmbientColor(ambientExtraColor:adjustSaturation(__AmbientSaturation,ambientExtraColor))
     ac.setExtraAmbientDirection(vec3Up)
   
     -- Adjusting fake shadows under cars
@@ -570,13 +579,13 @@ function ApplyFog(dt)
 
     local pressureMult = 101325 / Sim.weatherConditions.pressure
     local fogBlend = math.lerpInvSat(ac.getAltitude(), 10e3, 5e3)
-    local fogDistance = math.lerp(28.58e3 * pressureMult * (1 - Sim.weatherConditions.humidity * 0.6), 1e3, totalPollution) * math.lerp(1, 0.1, math.lerp((1 - CurrentConditions.clear) * 0.5, 1, ccFog))
+    local fogDistance = math.lerp(88.58e3 * pressureMult * (1 - Sim.weatherConditions.humidity * 0.6), 1e3, totalPollution) * math.lerp(1, 0.1, math.lerp((1 - CurrentConditions.clear) * 0.5, 1, ccFog))
     ac.setFogDistance(fogDistance)
     ac.setFogExponent(1 - CurrentConditions.pollution * 0.5)
     ac.setFogBlend(fogBlend)
 
     local atmosphereFade = math.lerp(ccFog, 1, math.max(CurrentConditions.clouds, 1 - CurrentConditions.clear))
-    ac.setFogAtmosphere(fogDistance * (1 - atmosphereFade * 0.5) / (22.5e3 * pressureMult) * (0.65 + Sim.weatherConditions.humidity * 0.7))
+    ac.setFogAtmosphere(fogDistance/6 * (1 - atmosphereFade * 0.5) / (22.5e3 * pressureMult) * (0.65 + Sim.weatherConditions.humidity * 0.7))
 
     -- ac.debug('occlusionMult', occlusionMult)
     local distanceBoost = math.max(0, Sim.cameraPosition.y - GroundYAveraged) * math.lerp(4, 0.4, NightK)

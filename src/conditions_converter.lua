@@ -37,14 +37,14 @@ defineWeather{type = ac.WeatherType.NoClouds,          fog = 0,    clear = 1,   
 defineWeather{type = ac.WeatherType.Clear,             fog = 0,    clear = 1,    clouds = 0.01}
 defineWeather{type = ac.WeatherType.FewClouds,         fog = 0,    clear = 1,    clouds = 0.25}
 defineWeather{type = ac.WeatherType.ScatteredClouds,   fog = 0,    clear = 1,    clouds = 0.5}
-defineWeather{type = ac.WeatherType.BrokenClouds,      fog = 0,    clear = 0.9,  clouds = 0.75}
-defineWeather{type = ac.WeatherType.OvercastClouds,    fog = 0,    clear = 0,    clouds = 1}
+defineWeather{type = ac.WeatherType.BrokenClouds,      fog = 0,    clear = 0.9,  clouds = 0.75,cloudsDensity = 0.2}
+defineWeather{type = ac.WeatherType.OvercastClouds,    fog = 0,    clear = 0,    clouds = 1,   cloudsDensity = 0.2}
 defineWeather{type = ac.WeatherType.Windy,             fog = 0,    clear = 0.8,  clouds = 0.6, saturation = 0.0}
 defineWeather{type = ac.WeatherType.Cold,              fog = 0.3,  clear = 0.9,  clouds = 0.4, saturation = 0.5, tint = rgb(0.8, 0.9, 1.0)}
 defineWeather{type = ac.WeatherType.Hot,               fog = 0.1,  clear = 1,    clouds = 0.1, saturation = 1.2, tint = rgb(1.0, 0.9, 0.8)}
 defineWeather{type = ac.WeatherType.Fog,               fog = 1,    clear = 0.1,  clouds = 0}
-defineWeather{type = ac.WeatherType.Mist,              fog = 0.4,  clear = 0.6,  clouds = 0.2, tint = rgb(0.8, 0.9, 1.0)}
-defineWeather{type = ac.WeatherType.Haze,              fog = 0.3,  clear = 0.5,  clouds = 0.2, tint = rgb(1, 0.92, 0.9), saturation = 0.8, pollution = 0.25}
+defineWeather{type = ac.WeatherType.Mist,              fog = 0.3,  clear = 0.6,  clouds = 0.2, tint = rgb(0.8, 0.9, 1.0)}
+defineWeather{type = ac.WeatherType.Haze,              fog = 0.1,  clear = 0.9,  clouds = 0.2, tint = rgb(1, 0.92, 0.9), saturation = 0.8, pollution = 0.25}
 defineWeather{type = ac.WeatherType.Dust,              fog = 0.5,  clear = 0.9,  clouds = 0.2, tint = rgb(1, 0.85, 0.8), saturation = 0.8, pollution = 0.5}
 defineWeather{type = ac.WeatherType.Smoke,             fog = 0.7,  clear = 0.9,  clouds = 0.8, tint = rgb(0.8, 0.7, 0.9):scale(0.4), saturation = 0.4, pollution = 0.75}
 defineWeather{type = ac.WeatherType.Sand,              fog = 0.9,  clear = 0.2,  clouds = 0.9, tint = rgb(1, 0.6, 0.4):scale(0.7), pollution = 1}
@@ -53,17 +53,17 @@ defineWeather{type = ac.WeatherType.Drizzle,           fog = 0.3,  clear = 0.7, 
 defineWeather{type = ac.WeatherType.HeavyDrizzle,      fog = 0.5,  clear = 0.5,  clouds = 0.9, cloudsDensity = 0.6, tint = rgb(0.8, 0.9, 1.0), thunder = 0.1}
 defineWeather{type = ac.WeatherType.LightRain,         fog = 0.1,  clear = 0.9,  clouds = 0.5, cloudsDensity = 0.3}
 defineWeather{type = ac.WeatherType.Rain,              fog = 0.25, clear = 0.3,  clouds = 0.7, cloudsDensity = 0.4}
-defineWeather{type = ac.WeatherType.HeavyRain,         fog = 0.5,  clear = 0,    clouds = 0.9, cloudsDensity = 0.5}
+defineWeather{type = ac.WeatherType.HeavyRain,         fog = 0.5,  clear = 0,    clouds = 0.9, cloudsDensity = 0.95}
 defineWeather{type = ac.WeatherType.LightThunderstorm, fog = 0.6,  clear = 0.1,  clouds = 0.9, cloudsDensity = 0.8, thunder = 0.4}
-defineWeather{type = ac.WeatherType.Thunderstorm,      fog = 0.8,  clear = 0,    clouds = 1,   cloudsDensity = 0.9, tint = rgb.new(0.6), thunder = 0.6}
-defineWeather{type = ac.WeatherType.HeavyThunderstorm, fog = 0.9,  clear = 0,    clouds = 1,   cloudsDensity = 1.0, tint = rgb.new(0.4), thunder = 0.8}
+defineWeather{type = ac.WeatherType.Thunderstorm,      fog = 0.8,  clear = 0,    clouds = 1,   cloudsDensity = 0.9, tint = rgb.new(0.9), thunder = 0.6}
+defineWeather{type = ac.WeatherType.HeavyThunderstorm, fog = 0.9,  clear = 0,    clouds = 1,   cloudsDensity = 1.0, tint = rgb.new(0.8), thunder = 0.8}
 defineWeather{type = ac.WeatherType.LightSnow,         fog = 0.2,  clear = 0.8,  clouds = 0.4, cloudsDensity = 0.3, tint = rgb(0.8, 0.9, 1.0), snow = 0.2}
 defineWeather{type = ac.WeatherType.Snow,              fog = 0.4,  clear = 0.05, clouds = 0.6, cloudsDensity = 0.5, tint = rgb(0.6, 0.8, 1.0), snow = 0.5}
 defineWeather{type = ac.WeatherType.HeavySnow,         fog = 1,    clear = 0,    clouds = 0.8, cloudsDensity = 0.8, tint = rgb(0.4, 0.7, 1.0), snow = 1}
 defineWeather{type = ac.WeatherType.LightSleet,        fog = 0.1,  clear = 0.9,  clouds = 0.7, cloudsDensity = 0.2, tint = rgb(0.6, 0.8, 1.0), saturation = 0.25, snow = 0.01}
 defineWeather{type = ac.WeatherType.Sleet,             fog = 0.3,  clear = 0.7,  clouds = 0.8, cloudsDensity = 0.4, tint = rgb(0.6, 0.8, 1.0), saturation = 0.12, snow = 0.03}
 defineWeather{type = ac.WeatherType.HeavySleet,        fog = 0.5,  clear = 0.5,  clouds = 0.9, cloudsDensity = 0.6, tint = rgb(0.6, 0.8, 1.0), saturation = 0.0, snow = 0.05}
-defineWeather{type = ac.WeatherType.Squalls,           fog = 0.1,  clear = 1,    clouds = 1,   saturation = 1.2}
+defineWeather{type = ac.WeatherType.Squalls,           fog = 0.0,  clear = 1,    clouds = 1,   cloudsDensity = 0.4, saturation = 1}
 defineWeather{type = ac.WeatherType.Tornado,           fog = 0.05, clear = 0,    clouds = 1,   cloudsDensity = 0.95, tint = rgb(1, 0.98, 0.9)}
 defineWeather{type = ac.WeatherType.Hurricane,         fog = 0.8,  clear = 0,    clouds = 1,   tint = rgb(0.28, 0.24, 0.3):adjustSaturation(0.5), thunder = 1}
 defineWeather{type = ac.WeatherType.Hail,              fog = 0.5,  clear = 0,    clouds = 1,   tint = rgb(0.3, 0.24, 0.28):adjustSaturation(0.5), thunder = 1}
